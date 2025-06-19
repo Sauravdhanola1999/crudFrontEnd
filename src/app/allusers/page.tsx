@@ -34,9 +34,6 @@ export default function UsersPage() {
       console.error("Error fetching users:", error);
     }
   };
-  useEffect(() => {
-    fetchUsers(page);
-  }, [page]);
 
   const handleDeleteUser = async (id: number) => {
     const confirmDelete = window.confirm("Are sure you wana delete this User");
@@ -50,6 +47,7 @@ export default function UsersPage() {
       if (res.ok) {
         alert("User Deleted");
         setUsers(users.filter((user) => user.id !== id));
+        fetchUsers(page);
       } else {
         alert(`Error:` + data.message);
       }
@@ -57,6 +55,10 @@ export default function UsersPage() {
       console.error("Delete failed:", error);
     }
   };
+
+  useEffect(() => {
+    fetchUsers(page);
+  }, [page]);
 
   return (
     <div className="p-6">
