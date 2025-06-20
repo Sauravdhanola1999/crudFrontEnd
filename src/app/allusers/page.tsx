@@ -1,5 +1,6 @@
 "use client";
 
+import PopUp from "@/components/popup";
 import { useEffect, useState } from "react";
 
 type User = {
@@ -19,13 +20,15 @@ type ApiResponse = {
 
 export default function UsersPage() {
   const [users, setUsers] = useState<User[]>([]);
+  const [showModel, setShowModel] = useState(false);
   const [page, setPage] = useState<number>(1);
   const [totalPages, setTotalPages] = useState<number>(1);
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
 
   const fetchUsers = async (page: number) => {
     try {
       const res = await fetch(
-        `http://localhost:8091/api/users/cards?page=${page}&limit=6`
+        `http://localhost:8091/api/users/cards?page=${page}`
       );
       const json: ApiResponse = await res.json();
       setUsers(json.data);
@@ -38,7 +41,6 @@ export default function UsersPage() {
   const handleDeleteUser = async (id: number) => {
     const confirmDelete = window.confirm("Are sure you wana delete this User");
     if (!confirmDelete) return;
-
     try {
       const res = await fetch(`http://localhost:8091/api/users/${id}`, {
         method: "DELETE",
@@ -53,6 +55,29 @@ export default function UsersPage() {
       }
     } catch (error) {
       console.error("Delete failed:", error);
+    }
+  };
+
+  const handleEdit = async (id: number) => {
+    try {
+      const response = await fetch(`http://localhost:8091/api/users/${id}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          // Authorization: `Bearer your-token`, // Optional if you use auth
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch user");
+      }
+
+      const user = await response.json();
+      setSelectedUser(user);
+      setShowModel(true);
+    } catch (error) {
+      console.error("Error fetching user:", error);
+      // Optional: show error UI or toast
     }
   };
 
@@ -73,7 +98,6 @@ export default function UsersPage() {
               {user.name}
             </h2>
             <p className="text-sm text-gray-600 mb-1">{user.email}</p>
-
             <span
               className={`inline-block text-xs font-medium px-3 py-1 rounded-full mb-4 ${
                 user.isActive
@@ -83,6 +107,12 @@ export default function UsersPage() {
             >
               {user.isActive ? "Active" : "Inactive"}
             </span>
+            <button
+              onClick={() => handleEdit(user.id)}
+              className="w-full px-4 py-2 mb-2 text-sm font-medium hover:bg-black text-white rounded-xl bg-gray-800 transition-colors"
+            >
+              Edit
+            </button>
 
             <button
               className="w-full px-4 py-2 text-sm font-medium hover:bg-black text-white rounded-xl bg-gray-800 transition-colors"
@@ -93,6 +123,19 @@ export default function UsersPage() {
           </div>
         ))}
       </div>
+      {showModel && selectedUser && (
+        <PopUp
+          user={selectedUser}
+          onClose={() => {
+            setShowModel(false);
+            setSelectedUser(null);
+          }}
+           onUserUpdated={() => {
+    fetchUsers(page); // 👈 re-fetch users after save
+  }}
+        />
+       
+      )}
       <div className="flex justify-center items-center gap-3 mt-8">
         <button
           onClick={() => setPage((prev) => Math.max(1, prev - 1))}
@@ -101,11 +144,9 @@ export default function UsersPage() {
         >
           ← Prev
         </button>
-
         <span className="px-4 py-2 font-semibold text-gray-800 border border-gray-300 rounded-lg bg-gray-50 shadow-sm">
           Page {page} of {totalPages}
         </span>
-
         <button
           onClick={() => setPage((prev) => Math.min(totalPages, prev + 1))}
           disabled={page === totalPages}
