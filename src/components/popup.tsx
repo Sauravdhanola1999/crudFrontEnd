@@ -38,13 +38,11 @@ export default function PopUp({ user, onClose, onUserUpdated }: EditModalProps) 
     const updatedUser = await res.json();
     console.log("User updated successfully:", updatedUser);
      onUserUpdated();
-    onClose(); // Close modal on success
+    onClose(); 
   } catch (error) {
     console.error("Error updating user:", error);
-    // Optionally show an error message in UI
   }
 };
-
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">

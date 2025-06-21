@@ -64,20 +64,18 @@ export default function UsersPage() {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
-          // Authorization: `Bearer your-token`, // Optional if you use auth
         },
       });
 
       if (!response.ok) {
         throw new Error("Failed to fetch user");
       }
-
       const user = await response.json();
       setSelectedUser(user);
       setShowModel(true);
     } catch (error) {
       console.error("Error fetching user:", error);
-      // Optional: show error UI or toast
+
     }
   };
 

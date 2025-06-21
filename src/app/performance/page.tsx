@@ -8,7 +8,6 @@ type User = {
 const AllUsersPage = async () => {
   const response = await fetch("http://localhost:8091/api/users");
   const users: User[] = await response.json();
-  // console.log(users);
   return (
     <div className="p-8">
       

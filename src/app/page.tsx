@@ -9,7 +9,6 @@ export default function Home() {
     password: "",
   });
 
-
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, type, value, checked } = e.target;
     setForm({
